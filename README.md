@@ -1,43 +1,46 @@
-🤖 AI Chatbot using Gemini API
+# 🚀 AI Chatbot using Gemini API  
 
-An AI-powered chatbot built using HTML, CSS, and JavaScript, integrated with Google Gemini API to deliver real-time conversational responses. The project is fully deployed and accessible online.
+![HTML](https://img.shields.io/badge/HTML-5-orange)  
+![CSS](https://img.shields.io/badge/CSS-3-blue)  
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)  
+![API](https://img.shields.io/badge/API-Gemini-green)  
+![Deployed on](https://img.shields.io/badge/Deployed%20on-Vercel-black)  
 
-🚀 Live Demo
+---
 
-🔗 Live App: https://your-project.vercel.app
+## 🌐 Live Demo  
 
-🔗 GitHub Repo: https://github.com/samyak000/chatbot
+🔗 **Live App:** https://your-project.vercel.app  
+🔗 **Repository:** https://github.com/samyak000/chatbot  
 
-📌 Features
-💬 Real-time AI responses using Gemini API
-⚡ Fast and responsive user interface
-🎨 Clean and minimal chat design
-🔄 Dynamic message rendering
-📱 Mobile-friendly layout
-🌐 Deployed on Vercel
-🛠️ Tech Stack
-Frontend: HTML, CSS, JavaScript
-AI Integration: Google Gemini API
-Deployment: Vercel
-Version Control: GitHub
-📂 Project Structure
-chatbot/
-│── index.html
-│── style.css
-│── script.js
-⚙️ How It Works
-User enters a message in the chat interface
-JavaScript captures the input and sends a request to the Gemini API
-The API processes the query and returns a response
-The response is dynamically displayed in the chat UI
-⚠️ Note on API Security
+---
 
-This project currently uses the API key in the frontend for demonstration purposes.
-For production-grade applications, a backend layer should be implemented to securely handle API requests.
+## 🧠 Overview  
 
-💡 Future Enhancements
-🔒 Backend integration for API security
-✨ Typing animation (AI thinking effect)
-💾 Chat history storage (localStorage / database)
-🌙 Dark mode toggle
-📄 Markdown rendering support
+This project is a **frontend AI chatbot** that interacts with users in real time using the Gemini API. It features a clean UI, dynamic chat rendering, and smooth user interaction.
+
+---
+
+## ✨ Key Features  
+
+- 💬 Real-time AI conversation  
+- ⚡ Instant response rendering  
+- 🎯 Minimal and intuitive UI  
+- 📱 Fully responsive design  
+- 🔄 Dynamic DOM manipulation  
+- 🌍 Live deployment  
+
+---
+
+## 🛠️ Tech Stack  
+
+| Category        | Technology |
+|----------------|-----------|
+| Frontend       | HTML, CSS, JavaScript |
+| AI Integration | Google Gemini API |
+| Deployment     | Vercel |
+| Version Control| GitHub |
+
+---
+
+## 📂 Project Structure  
