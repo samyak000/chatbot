@@ -10,7 +10,7 @@
 
 ## 🌐 Live Demo  
 
-🔗 **Live App:** https://your-project.vercel.app  
+🔗 **Live App:** https://aichatbot-pink-seven.vercel.app/
 🔗 **Repository:** https://github.com/samyak000/chatbot  
 
 ---
