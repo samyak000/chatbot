@@ -44,3 +44,21 @@ This project is a **frontend AI chatbot** that interacts with users in real time
 ---
 
 ## 📂 Project Structure  
+
+
+chatbot/
+│── index.html
+│── style.css
+│── script.js
+
+
+---
+
+## ⚙️ Working Flow  
+
+```mermaid
+graph TD;
+A[User Input] --> B[JavaScript Fetch Request];
+B --> C[Gemini API];
+C --> D[Response Received];
+D --> E[Rendered in Chat UI];
