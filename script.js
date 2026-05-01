@@ -1,60 +1,38 @@
-const toggler = document.getElementById("chatbot-toggler");
-const closeBtn = document.getElementById("close-chatbot");
-
-const form = document.querySelector(".chat-footer");
-const textarea = document.querySelector(".message-input");
 const chatBody = document.querySelector(".chat-body");
+const messageInput = document.querySelector(".message-input");
+const sendMessage = document.querySelector("#send-message");
+const fileInput = document.querySelector("#file-input");
+const fileUploadWrapper = document.querySelector(".file-upload-wrapper");
+const fileCancelButton = document.querySelector("#file-cancel");
+const chatbotToggler = document.querySelector("#chatbot-toggler");
+const closeChatbot = document.querySelector("#close-chatbot");
 
-const fileInput = document.getElementById("file-input");
-const uploadBtn = document.getElementById("upload-btn");
-const emojiBtn = document.getElementById("emoji-btn");
-const voiceBtn = document.getElementById("voice-btn");
+const API_KEY = "YOUR_API_KEY";
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
 
-/* ================= GEMINI API ================= */
-const API_KEY = "YOUR_API_KEY_HERE";
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+const userData = {
+  message: null,
+  file: { data: null, mime_type: null },
+};
 
-/* ================= STATE ================= */
-let chatHistory = [];
-let imageData = null;
+const chatHistory = [];
 
-/* ================= TOGGLE CHAT ================= */
-toggler.onclick = () => document.body.classList.toggle("show-chatbot");
-closeBtn.onclick = () => document.body.classList.remove("show-chatbot");
-
-/* ================= MESSAGE UI ================= */
-function addMessage(text, type, img = null) {
+const createMessageElement = (content, ...classes) => {
   const div = document.createElement("div");
-  div.className = `message ${type}`;
+  div.classList.add("message", ...classes);
+  div.innerHTML = content;
+  return div;
+};
 
-  div.innerHTML = `
-    <div class="msg">${text}</div>
-    ${img ? `<img src="${img}" style="max-width:180px;border-radius:10px;margin-top:6px;">` : ""}
-  `;
+const generateBotResponse = async (incomingMessageDiv) => {
+  const messageElement = incomingMessageDiv.querySelector(".message-text");
 
-  chatBody.appendChild(div);
-  chatBody.scrollTop = chatBody.scrollHeight;
-}
+  chatHistory.push({
+    role: "user",
+    parts: [{ text: userData.message }]
+  });
 
-/* ================= SAFE API CALL ================= */
-async function generateResponse(userMessage, typingDiv) {
   try {
-    const parts = [{ text: userMessage }];
-
-    if (imageData) {
-      parts.push({
-        inline_data: {
-          mime_type: imageData.type,
-          data: imageData.base64
-        }
-      });
-    }
-
-    chatHistory.push({
-      role: "user",
-      parts
-    });
-
     const response = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -63,107 +41,56 @@ async function generateResponse(userMessage, typingDiv) {
 
     const data = await response.json();
 
-    console.log("Gemini Response:", data); // DEBUG
+    const text =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "No response from AI.";
 
-    /* ================= SAFETY CHECKS ================= */
-    if (!response.ok) {
-      throw new Error(data?.error?.message || "API request failed");
-    }
-
-    const candidate = data?.candidates?.[0];
-
-    if (!candidate || !candidate.content) {
-      throw new Error("No valid response from Gemini API");
-    }
-
-    const reply = candidate.content.parts?.[0]?.text;
-
-    if (!reply) {
-      throw new Error("Empty response from model");
-    }
-
-    typingDiv.remove();
-    addMessage(reply, "bot");
+    messageElement.innerText = text;
 
     chatHistory.push({
       role: "model",
-      parts: [{ text: reply }]
+      parts: [{ text }]
     });
 
   } catch (err) {
-    typingDiv.remove();
-    addMessage("⚠️ " + err.message, "bot");
+    messageElement.innerText = err.message;
+    messageElement.style.color = "red";
   }
 
-  imageData = null;
-}
-
-/* ================= SEND MESSAGE ================= */
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  const msg = textarea.value.trim();
-  if (!msg && !imageData) return;
-
-  addMessage(msg, "user", imageData?.preview);
-
-  textarea.value = "";
-
-  const typingDiv = document.createElement("div");
-  typingDiv.className = "message bot";
-  typingDiv.innerHTML = `<div class="msg">Typing...</div>`;
-  chatBody.appendChild(typingDiv);
-
-  chatBody.scrollTop = chatBody.scrollHeight;
-
-  generateResponse(msg, typingDiv);
-});
-
-/* ================= IMAGE UPLOAD ================= */
-uploadBtn.onclick = () => fileInput.click();
-
-fileInput.addEventListener("change", () => {
-  const file = fileInput.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-
-  reader.onload = () => {
-    imageData = {
-      base64: reader.result.split(",")[1],
-      type: file.type,
-      preview: reader.result
-    };
-  };
-
-  reader.readAsDataURL(file);
-});
-
-/* ================= VOICE INPUT ================= */
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-if (SpeechRecognition) {
-  const recognition = new SpeechRecognition();
-  recognition.lang = "en-US";
-
-  voiceBtn.onclick = () => recognition.start();
-
-  recognition.onresult = (event) => {
-    textarea.value += event.results[0][0].transcript;
-  };
-} else {
-  voiceBtn.style.display = "none";
-}
-
-/* ================= EMOJI (simple safe version) ================= */
-emojiBtn.onclick = () => {
-  textarea.value += "😊";
+  incomingMessageDiv.classList.remove("thinking");
 };
 
-/* ================= ENTER KEY SUPPORT ================= */
-textarea.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    form.dispatchEvent(new Event("submit"));
-  }
+const handleOutgoingMessage = (e) => {
+  e.preventDefault();
+
+  userData.message = messageInput.value.trim();
+  if (!userData.message) return;
+
+  messageInput.value = "";
+
+  const content = `<div class="message-text">${userData.message}</div>`;
+
+  const userMessageDiv = createMessageElement(content, "user-message");
+
+  chatBody.appendChild(userMessageDiv);
+
+  const botContent = `
+    <div class="message-text">Thinking...</div>
+  `;
+
+  const botDiv = createMessageElement(botContent, "bot-message", "thinking");
+
+  chatBody.appendChild(botDiv);
+
+  generateBotResponse(botDiv);
+};
+
+sendMessage.addEventListener("click", handleOutgoingMessage);
+
+chatbotToggler.addEventListener("click", () => {
+  document.body.classList.toggle("show-chatbot");
+});
+
+closeChatbot.addEventListener("click", () => {
+  document.body.classList.remove("show-chatbot");
 });
