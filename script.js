@@ -1,38 +1,42 @@
-const chatbot = document.querySelector(".chatbot");
 const toggler = document.getElementById("chatbot-toggler");
 const closeBtn = document.getElementById("close-chatbot");
 
 const form = document.querySelector(".chat-footer");
-const textarea = form.querySelector("textarea");
+const textarea = document.querySelector(".message-input");
 const chatBody = document.querySelector(".chat-body");
 
+const fileInput = document.getElementById("file-input");
+const uploadBtn = document.getElementById("upload-btn");
+
+const emojiBtn = document.getElementById("emoji-btn");
+const voiceBtn = document.getElementById("voice-btn");
+
 /* ================= API ================= */
-const API_KEY = "YOUR_API_KEY_HERE";
+const API_KEY = "YOUR_API_KEY";
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
 
-const chatHistory = [];
+let chatHistory = [];
+let imageData = null;
 
 /* ================= TOGGLE ================= */
-toggler.onclick = () => {
-  document.body.classList.toggle("show-chatbot");
-};
+toggler.onclick = () => document.body.classList.toggle("show-chatbot");
+closeBtn.onclick = () => document.body.classList.remove("show-chatbot");
 
-closeBtn.onclick = () => {
-  document.body.classList.remove("show-chatbot");
-};
-
-/* ================= MESSAGE CREATE ================= */
-function addMessage(text, type) {
+/* ================= MESSAGE ================= */
+function addMessage(text, type, img = null) {
   const div = document.createElement("div");
   div.className = `message ${type}`;
 
-  div.innerHTML = `<div class="msg">${text}</div>`;
-  chatBody.appendChild(div);
+  div.innerHTML = `
+    <div class="msg">${text}</div>
+    ${img ? `<img src="${img}" class="preview-img"/>` : ""}
+  `;
 
+  chatBody.appendChild(div);
   chatBody.scrollTop = chatBody.scrollHeight;
 }
 
-/* ================= THINKING ================= */
+/* ================= TYPING ================= */
 function showTyping() {
   const div = document.createElement("div");
   div.className = "message bot thinking";
@@ -46,27 +50,33 @@ function showTyping() {
   `;
 
   chatBody.appendChild(div);
-  chatBody.scrollTop = chatBody.scrollHeight;
-
   return div;
 }
 
-/* ================= API CALL ================= */
-async function generateResponse(userMessage, typingDiv) {
-  chatHistory.push({
-    role: "user",
-    parts: [{ text: userMessage }],
-  });
+/* ================= API ================= */
+async function generateResponse(message, typingDiv) {
+
+  const parts = [{ text: message }];
+
+  if (imageData) {
+    parts.push({
+      inline_data: {
+        mime_type: imageData.type,
+        data: imageData.base64
+      }
+    });
+  }
+
+  chatHistory.push({ role: "user", parts });
 
   try {
     const res = await fetch(API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: chatHistory }),
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ contents: chatHistory })
     });
 
     const data = await res.json();
-
     if (!res.ok) throw new Error(data.error.message);
 
     const reply = data.candidates[0].content.parts[0].text;
@@ -76,31 +86,93 @@ async function generateResponse(userMessage, typingDiv) {
 
     chatHistory.push({
       role: "model",
-      parts: [{ text: reply }],
+      parts: [{ text: reply }]
     });
 
   } catch (err) {
     typingDiv.remove();
     addMessage("Error: " + err.message, "bot");
   }
+
+  imageData = null;
 }
 
 /* ================= SEND ================= */
 form.addEventListener("submit", (e) => {
   e.preventDefault();
 
-  const message = textarea.value.trim();
-  if (!message) return;
+  const msg = textarea.value.trim();
+  if (!msg && !imageData) return;
 
-  addMessage(message, "user");
+  addMessage(msg, "user", imageData?.preview);
   textarea.value = "";
 
-  const typingDiv = showTyping();
-
-  generateResponse(message, typingDiv);
+  const typing = showTyping();
+  generateResponse(msg, typing);
 });
 
-/* ================= ENTER KEY ================= */
+/* ================= IMAGE UPLOAD ================= */
+uploadBtn.onclick = () => fileInput.click();
+
+fileInput.addEventListener("change", () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    const base64 = reader.result.split(",")[1];
+
+    imageData = {
+      base64: base64,
+      type: file.type,
+      preview: reader.result
+    };
+  };
+
+  reader.readAsDataURL(file);
+});
+
+/* ================= EMOJI ================= */
+const picker = new EmojiMart.Picker({
+  onEmojiSelect: (emoji) => {
+    textarea.value += emoji.native;
+  }
+});
+
+document.body.appendChild(picker);
+picker.style.display = "none";
+
+emojiBtn.onclick = () => {
+  picker.style.display = picker.style.display === "none" ? "block" : "none";
+};
+
+/* ================= VOICE INPUT ================= */
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+  const recognition = new SpeechRecognition();
+  recognition.lang = "en-US";
+
+  voiceBtn.onclick = () => {
+    recognition.start();
+    voiceBtn.innerText = "🎙️";
+  };
+
+  recognition.onresult = (event) => {
+    textarea.value += event.results[0][0].transcript;
+    voiceBtn.innerText = "🎤";
+  };
+
+  recognition.onerror = () => {
+    voiceBtn.innerText = "🎤";
+  };
+
+} else {
+  voiceBtn.style.display = "none";
+}
+
+/* ================= ENTER ================= */
 textarea.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
