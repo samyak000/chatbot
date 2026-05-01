@@ -5,69 +5,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Samyak AI Chatbot</title>
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-  <!-- Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet"/>
-
   <link rel="stylesheet" href="style.css"/>
+
+  <!-- Emoji Mart -->
+  <script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
+
+  <!-- Google Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet"/>
 </head>
 
 <body>
 
-<!-- BACKGROUND OVERLAY -->
-<div class="bg-overlay"></div>
+<div class="bg"></div>
 
-<!-- TOGGLER -->
+<!-- CHAT TOGGLER -->
 <button id="chatbot-toggler">
   <span class="material-symbols-rounded">chat</span>
 </button>
 
-<!-- CHATBOT -->
+<!-- CHAT WINDOW -->
 <div class="chatbot">
 
   <!-- HEADER -->
   <div class="chat-header">
-    <div class="header-left">
-      <div class="bot-avatar">AI</div>
+    <div class="left">
+      <div class="avatar">AI</div>
       <div>
         <h3>Samyak AI</h3>
-        <span>Online</span>
+        <small>Online</small>
       </div>
     </div>
     <button id="close-chatbot">✕</button>
   </div>
 
   <!-- BODY -->
-  <div class="chat-body">
-    <div class="message bot">
-      <div class="msg">
-        Hey Samyak 👋 <br/> How can I help you today?
-      </div>
-    </div>
-  </div>
+  <div class="chat-body"></div>
 
   <!-- FOOTER -->
-<form class="chat-footer">
+  <form class="chat-footer">
+    <textarea class="message-input" placeholder="Message..."></textarea>
 
-  <textarea class="message-input" placeholder="Type a message..."></textarea>
+    <div class="actions">
+      <button type="button" id="emoji-btn">😀</button>
 
-  <div class="controls">
+      <input type="file" id="file-input" accept="image/*" hidden />
+      <button type="button" id="upload-btn">📎</button>
 
-    <!-- EMOJI -->
-    <button type="button" id="emoji-btn">😀</button>
+      <button type="button" id="voice-btn">🎤</button>
 
-    <!-- IMAGE -->
-    <input type="file" id="file-input" accept="image/*" hidden>
-    <button type="button" id="upload-btn">📎</button>
+      <button type="submit">➤</button>
+    </div>
+  </form>
 
-    <!-- VOICE -->
-    <button type="button" id="voice-btn">🎤</button>
+</div>
 
-    <!-- SEND -->
-    <button type="submit">➤</button>
-
-  </div>
-
-</form>
+<script src="script.js"></script>
+</body>
+</html>
