@@ -49,15 +49,25 @@
   </div>
 
   <!-- FOOTER -->
-  <form class="chat-footer">
-    <textarea placeholder="Type your message..."></textarea>
-    <button type="submit">
-      <span class="material-symbols-rounded">send</span>
-    </button>
-  </form>
+<form class="chat-footer">
 
-</div>
+  <textarea class="message-input" placeholder="Type a message..."></textarea>
 
-<script src="script.js"></script>
-</body>
-</html>
+  <div class="controls">
+
+    <!-- EMOJI -->
+    <button type="button" id="emoji-btn">😀</button>
+
+    <!-- IMAGE -->
+    <input type="file" id="file-input" accept="image/*" hidden>
+    <button type="button" id="upload-btn">📎</button>
+
+    <!-- VOICE -->
+    <button type="button" id="voice-btn">🎤</button>
+
+    <!-- SEND -->
+    <button type="submit">➤</button>
+
+  </div>
+
+</form>
